@@ -1,5 +1,4 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import SeriePopular from '../screens/SeriePopular';
 import FilmPopular from '../screens/FilmPopular';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';

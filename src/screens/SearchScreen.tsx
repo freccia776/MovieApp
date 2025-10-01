@@ -6,14 +6,14 @@ import FilmCategory from "../components/FilmCategory"
 export default function SearchScreen() {
   
   const [text, setText] = useState<string>('');
-  const [search, setNoSearch] = useState<boolean>(false);
+  const [search, setNoSearch] = useState<boolean>(false); // stato per gestire la ricerca
   
-  const handleSubmit = (): void => {
+  const handleSubmit = (): void => { //funzione per inviare il testo
     console.log('Testo inviato:', text);
     setText('');
   };
 
-  const handleChange = (value: string): void => {
+  const handleChange = (value: string): void => { //funzione per aggiornare il testo
     setText(value);
   };
 

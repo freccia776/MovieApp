@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 
 interface Movie {
     id: number;
@@ -7,19 +7,29 @@ interface Movie {
     image: string;
   }
 
-const MovieCard = ({ movieItem } : { movieItem: Movie }) => {
+
+  interface MovieCardProps {
+  movieItem: Movie;
+  onPress?: () => void; //tra le proprietà di moviecard aggiungiamo la funzione onPress con il TouchableOpacity
+}
+
+const MovieCard = ({ movieItem, onPress }: MovieCardProps) => {
 
     if (!movieItem || !movieItem.image || !movieItem.title) {
         return null; // Non renderizzare nulla se i dati non sono validi
       }
     
   return (
-    <View style={styles.card}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8} disabled={!onPress} style={styles.card}>
+
       <Image source={{ uri: movieItem.image }} style={styles.image} />
       <Text style={styles.title}>{movieItem.title}</Text>
-    </View>
+   
+    </TouchableOpacity>
   );
 };
+
+
 
 const styles = StyleSheet.create({
   card: {
