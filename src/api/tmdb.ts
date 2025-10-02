@@ -170,3 +170,53 @@ if (type === "serietv") {
 }
 
 //funzione di ricerca da implementare
+
+export async function searchMovies(text: string): Promise<Movie[]> {
+
+ const res = await fetch(
+    BASE_URL + "/search/movie?api_key="+ API_KEY + "&language=it-IT&query=" + text
+  );
+
+
+  const data = await res.json();
+
+  const movies: Movie[] = [];
+  data.results.forEach((movie: any) => {
+    movies.push({
+    id: movie.id,
+    title: movie.title,
+    overview: movie.overview,
+    poster_path: movie.poster_path,
+    image: "https://image.tmdb.org/t/p/w500" + movie.poster_path,
+    }); 
+
+  });
+  return movies; 
+
+
+}
+
+export async function searchSeries(text: string): Promise<Serie[]> {
+
+ const res = await fetch(
+    BASE_URL + "/search/tv?api_key="+ API_KEY + "&language=it-IT&query=" + text
+  );
+
+
+  const data = await res.json();
+
+  const series: Serie[] = []; //PROBLEMI DI TIPIZZAZIONE???
+  data.results.forEach((serie: any) => {
+    series.push({
+    id: serie.id,
+    name: serie.name,
+    overview: serie.overview,
+    poster_path: serie.poster_path,
+    image: "https://image.tmdb.org/t/p/w500" + serie.poster_path,
+    }); 
+    
+  });
+  return series; 
+
+
+}

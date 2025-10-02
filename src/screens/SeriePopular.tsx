@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { StyleSheet, SafeAreaView, ScrollView} from 'react-native';
 import SerieSection from '../components/SerieSection';
 import { getNewSeries, getPopularSeries, Serie } from "../api/tmdb";
+
+
 export default function SeriePopular() {
  //PARAMETRI
 
@@ -26,6 +28,8 @@ export default function SeriePopular() {
 const [newSeries, setNewSeries] = useState<Serie[]>([]);
 const [popularSeries, setPopularSeries] = useState<Serie[]>([]);
 const MaxSeriesVisibile = 3;
+
+
 
 useEffect(() => {
     getNewSeries().then(setNewSeries);

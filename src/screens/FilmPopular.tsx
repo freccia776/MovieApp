@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { StyleSheet, SafeAreaView, ScrollView} from 'react-native';
 import MovieSection from '../components/MovieSection';
 import { getPopularMovies, getNowPlayingMovies, Movie } from "../api/tmdb";
+
+
 export default function FilmPopular() {
 
 

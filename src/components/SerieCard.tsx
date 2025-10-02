@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 
 interface Serie {
     id: number;
@@ -8,17 +8,23 @@ interface Serie {
 }
 
 
-const SerieCard = ({ serieItem } : { serieItem: Serie }) => {
+
+  interface SerieCardProps {
+  serieItem: Serie;
+  onPress?: () => void; //tra le proprietà di moviecard aggiungiamo la funzione onPress con il TouchableOpacity
+}
+
+const SerieCard = ({ serieItem, onPress } : SerieCardProps) => {
 
     if (!serieItem || !serieItem.image || !serieItem.name) {
         return null; // Non renderizzare nulla se i dati non sono validi
       }
     
   return (
-    <View style={styles.card}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8} disabled={!onPress} style={styles.card}>
       <Image source={{ uri: serieItem.image }} style={styles.image} />
       <Text style={styles.title}>{serieItem.name}</Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 

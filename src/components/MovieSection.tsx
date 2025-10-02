@@ -11,7 +11,7 @@ interface Movie {
 }
 
 interface MovieSectionProps {
-  title: string;
+  title?: string; 
   movies: Movie[];
   maxVisible?: number;
 
@@ -19,8 +19,8 @@ interface MovieSectionProps {
   
 }
 //sto dicendo a questo script che è la home e quindi avrà i seguenti parametri assegnati nel type
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'HomeTab'>; 
-
+//type NavigationProp = NativeStackNavigationProp<StackParamList, 'HomeTab'>; 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const MovieSection: React.FC<MovieSectionProps> = ({ title, movies, maxVisible = 9 }) => {
      const navigation = useNavigation<NavigationProp>();
@@ -32,7 +32,8 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, movies, maxVisible =
               <MovieCard 
               key={movie.id} //si deve passare quando si fa .map
               movieItem={movie} 
-              onPress={() => navigation.navigate("FilmContent",  { movieId: movie.id })}
+              onPress={() => navigation.navigate("Content", { id: movie.id, type: "film" })} //per un film siamo in MovieSection
+
               />
             ))}
           </View>

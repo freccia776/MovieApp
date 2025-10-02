@@ -1,10 +1,11 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export type RootStackParamList = {
-  HomeTab: undefined;
-  FilmContent: { movieId: number }; // è un numero
+  Tabs: undefined;
+  Content: {
+    id: number;
+    type: 'film' | 'serie';
+  };
 };
 
-// props tipizzate per le screen
-export type FilmContentProps = NativeStackScreenProps<RootStackParamList, 'FilmContent'>;
-export type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'HomeTab'>;
+export type ContentProps = NativeStackScreenProps<RootStackParamList, 'Content'>;

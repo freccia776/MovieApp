@@ -1,22 +1,47 @@
 
-import React, { useState }from 'react';
+import React, { useState,  useEffect }from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, ScrollView} from 'react-native';
 import FilmCategory from "../components/FilmCategory"
+import { Movie } from '../api/tmdb';
+import { Serie } from '../api/tmdb';
+import { searchMovies, searchSeries } from '../api/tmdb';
+import MovieSection from '../components/MovieSection';
+import SerieSection from '../components/SerieSection';
+
+
 
 export default function SearchScreen() {
   
-  const [text, setText] = useState<string>('');
-  const [search, setNoSearch] = useState<boolean>(false); // stato per gestire la ricerca
+
+  const [text, setText] = useState<string>("");
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [series, setSeries] = useState<Serie[]>([]);
+  const maxVisible = 6; //massimo visibile per serie e film //DA OTTIMIZZARE
+
   
-  const handleSubmit = (): void => { //funzione per inviare il testo
-    console.log('Testo inviato:', text);
-    setText('');
-  };
+  //USARE USEEFFECT
+    useEffect(() => {
+    if (text.trim() === "") {
+      setMovies([]);
+      setSeries([]);
+      return;
+    }
 
-  const handleChange = (value: string): void => { //funzione per aggiornare il testo
-    setText(value);
-  };
+    const fetchData = async () => {
+      try {
+        const moviesData = await searchMovies(text);
+        const seriesData = await searchSeries(text);
+        setMovies(moviesData);
+        setSeries(seriesData);
+      } catch (err) {
+        console.error("Errore nella ricerca:", err);
+      }
+    };
 
+    fetchData();
+  }, [text]);
+
+ 
 
   //CATEGORIE
   const categories = [
@@ -33,6 +58,7 @@ export default function SearchScreen() {
    
   ];
 
+  
 
   return (
     <View style={styles.container}>
@@ -40,14 +66,11 @@ export default function SearchScreen() {
         <TextInput
           style={styles.input}
           value={text}
-          onChangeText={handleChange}
+          onChangeText={setText}
           placeholder="Scrivi qualcosa..."
         />
-        <TouchableOpacity style={styles.buttoninput} onPress={handleSubmit}>
-          <Text style={styles.buttontext}>Invia</Text>
-        </TouchableOpacity>
       </View>
-
+    {text === "" && ( //CONDIZIONE CHE SE IL TESTO E' VUOTO MOSTRA LE CATEGORIE
       <View style = {styles.categoryContainer}>
         <ScrollView style={{ width: "100%" }} contentContainerStyle={{ alignItems: 'center' }}>
           {categories.slice(0, categories.length).map((category) => (
@@ -57,6 +80,19 @@ export default function SearchScreen() {
 
         </ScrollView>
       </View>
+
+      )}
+
+       {text !== "" && ( //CONDIZIONE
+        <View>
+           <ScrollView style={{ width: "100%" , marginBottom: 50}} contentContainerStyle={{ alignItems: 'center' }}>
+          <Text>Risultati per: {text}</Text>
+          {/* qui potresti mettere la lista dei risultati */}
+           <MovieSection title="Film" movies={movies} maxVisible={maxVisible} />
+           <SerieSection name="Serie TV" series={series} maxVisible={maxVisible} />
+           </ScrollView>
+        </View>
+      )}
       
 
     </View>
@@ -109,4 +145,5 @@ const styles = StyleSheet.create({
   
     
   },
+ 
 });
