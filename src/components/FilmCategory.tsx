@@ -19,7 +19,10 @@ const FilmCategory = ({ categoryItem } : { categoryItem: Category }) => {
 
     return(
 
-        <TouchableOpacity style={styles.categoryLayout} onPress={() => handlePress(categoryItem.title)}>
+        <TouchableOpacity 
+            style={styles.categoryLayout} 
+            onPress={() => handlePress(categoryItem.title)}
+        >
            <Text style = {styles.titleText}>{categoryItem.title}</Text>
         </TouchableOpacity>
 
@@ -27,32 +30,36 @@ const FilmCategory = ({ categoryItem } : { categoryItem: Category }) => {
 
 };
 
-
 const styles = StyleSheet.create({
-
-titleText: {
-    fontSize: 20,
-    color: "#fff",
-    fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 10,      
-},
-
-categoryLayout: {
-    
-
-
-
-    backgroundColor: "#9966CC",
-    borderRadius: 8,
-    padding: 10,
-    margin: 5,
-    width: "90%", // Adatta la larghezza per il wrapping
-    shadowColor: "#000",
-    
-    
-}
-
+    categoryLayout: {
+        backgroundColor: "rgba(153, 102, 204, 0.15)", // Viola trasparente
+        borderRadius: 12,
+        padding: 16,
+        marginVertical: 6,
+        marginHorizontal: 20,
+        width: "90%",
+        alignSelf: "center",
+        borderWidth: 1,
+        borderColor: "rgba(153, 102, 204, 0.3)",
+        shadowColor: "#9966CC",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        // Effetto di hover per interazione
+        transform: [{ scale: 1 }],
+    },
+    titleText: {
+        fontSize: 18,
+        color: "#FFFFFF",
+        fontWeight: "600",
+        textAlign: "center",
+        letterSpacing: 0.5,
+    },
 });
+
 
 export default FilmCategory;

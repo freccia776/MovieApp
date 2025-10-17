@@ -1,0 +1,20 @@
+1. Da dove arriva route.params?.username?
+Sì, hai capito perfettamente. Quel valore arriva esattamente dal link (o da una navigazione interna che simula un link).
+
+Pensa a questo flusso:
+
+Un utente condivide il link del suo profilo: movieapp://user/MarioRossi
+
+Tu clicchi su quel link.
+
+Il tuo sistema operativo apre l'app.
+
+React Navigation intercetta il link e, grazie alla configurazione del deep linking (che imposteremo in futuro), lo interpreta. Sa che user/MarioRossi corrisponde alla schermata del profilo.
+
+Esegue internamente un'azione simile a: navigation.navigate('ProfileStack', { screen: 'ProfileMain', params: { username: 'MarioRossi' } }).
+
+Di conseguenza, la tua ProfileScreen si apre e dentro route.params trova { username: 'MarioRossi' }.
+
+Quindi sì, route.params è il modo in cui una schermata riceve "dati dall'esterno", che sia un'altra schermata o un link.
+
+

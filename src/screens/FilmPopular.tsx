@@ -1,6 +1,7 @@
 import React from 'react';
-import { useEffect, useState } from "react";
-import { StyleSheet, SafeAreaView, ScrollView} from 'react-native';
+import { useEffect, useState, useCallback } from "react";
+import { StyleSheet, ScrollView, RefreshControl} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import MovieSection from '../components/MovieSection';
 import { getPopularMovies, getNowPlayingMovies, Movie } from "../api/tmdb";
 
@@ -31,12 +32,33 @@ export default function FilmPopular() {
   
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
   const [newMovies, setNewMovies] = useState<Movie[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
   const MaxFilmVisible = 3;
 
   useEffect(() => {
     getPopularMovies().then(setPopularMovies);
     getNowPlayingMovies().then(setNewMovies);
   }, []);
+
+
+
+  //(onRefresh).
+    const onRefresh = useCallback(async () => {
+      setRefreshing(true); // Mostra l'indicatore di caricamento
+  
+      // Esegue nuovamente le chiamate API per ottenere i dati più recenti
+      const [newMoviesData, populaMoviesData] = await Promise.all([
+        getNowPlayingMovies(),
+        getPopularMovies()
+        
+      ]);
+      setNewMovies(newMoviesData);
+      setPopularMovies(populaMoviesData);
+  
+      setRefreshing(false); // Nasconde l'indicatore alla fine
+    }, []); 
+  
+  
 
 
 /*
@@ -46,7 +68,16 @@ export default function FilmPopular() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView  refreshControl={
+                <RefreshControl
+                  refreshing={refreshing} // Collega lo stato di 'refreshing' al componente
+                  onRefresh={onRefresh}     // Dice al componente quale funzione chiamare
+                  colors={["#9966CC", "#7A4FA3"]}
+                  tintColor={"#9966CC"} // Colori dell'indicatore (opzionale) // Colori dell'indicatore (opzionale)
+                  progressBackgroundColor="#2D2D2D" // Sfondo scuro per l'indicatore
+                />
+              }
+              >
       <MovieSection title="Film Popolari" movies={popularMovies} maxVisible={MaxFilmVisible} />
       <MovieSection title="Film Nuovi" movies={newMovies} maxVisible={MaxFilmVisible} />
       </ScrollView>
@@ -58,7 +89,6 @@ export default function FilmPopular() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#1A1A1A", // Sfondo scuro coerente
   },
- 
 });

@@ -30,20 +30,20 @@ const MovieCard = ({ movieItem, onPress }: MovieCardProps) => {
 };
 
 
-
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
+    backgroundColor: "#2D2D2D", // Sfondo scuro coerente
+    borderRadius: 12,
     padding: 10,
     margin: 5,
-    width: "30%", // Adatta la larghezza per il wrapping
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-   
+    width: "30%",
+    shadowColor: "#9966CC", // Ombra viola
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: "rgba(153, 102, 204, 0.2)", // Bordo viola sottile
   },
   image: {
     width: "100%",
@@ -51,10 +51,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   title: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 14,
+    fontWeight: "600",
     marginTop: 10,
     textAlign: "center",
+    color: "#FFFFFF", // Testo bianco
   },
 });
 

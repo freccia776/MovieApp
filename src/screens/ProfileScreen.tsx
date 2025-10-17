@@ -1,9 +1,21 @@
 import React from "react";
-import { SafeAreaView, ScrollView, View, Text, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
+import { ScrollView, View, Text, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import MovieCard from "../components/MovieCard"; // Assicurati che il percorso sia corretto
+import { ProfileStackParamList } from "../types/types";
+import { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack"; 
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from '@expo/vector-icons';
 
 
-export default function ProfileScreen() {
+// Definiamo le props per l'intera schermata (che includono 'route')
+type ProfileScreenProps = NativeStackScreenProps<ProfileStackParamList, 'ProfileMain'>;
+
+// STIAMO UTILIZZANDO NAVIGATION PROP MA IN REALTÀ FORSE DOBBIAMO USARE PROPS PERCHÈ DOVREMMO 
+// PASSARE L'ID DEL PROFILO PER VEDERE LA LISTA PREFERITI DI OGNI UTENTE QUANDO APRO IL SUO PROFILO
+type NavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
+
+export default function ProfileScreen({ route }: ProfileScreenProps) {
   const movies = [
     { id: 1, title: "Inception", image: "https://via.placeholder.com/150" },
     { id: 2, title: "Interstellar", image: "https://via.placeholder.com/150" },
@@ -18,15 +30,18 @@ export default function ProfileScreen() {
 
   ];
 
-  const MaxFilmVisible = 8; // Numero massimo di film da visualizzare
-
+  const MaxFilmVisible = 3; // Numero massimo di film da visualizzare
   const bio = "Questa è una bio molto lunga che supera il limite di 80 caratteri e deve essere troncata per adattarsi al layout.";
+  const navigation = useNavigation<NavigationProp>();
 
+  //IL PRIMO SERVE PER IL DEEPLINKING :
+  //IL SECONDO INVECE DOVREBBE ESSERE PRESO DALLA SESSIONE DELL'UTENTE LOGGATO
+  const username = route.params?.username || "UtenteEsempio"; // Username fittizio dell'utente loggato
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileSection}>
-          <Text style={styles.username}>Username</Text>
+            <Text style={styles.username}>{username}</Text>
           <Image
             style={styles.profileImage}
             source={require("../img/profile.jpg")}
@@ -35,25 +50,27 @@ export default function ProfileScreen() {
             {bio.length > 80 ? `${bio.slice(0, 80)}` : bio}
           </Text>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
+           <TouchableOpacity
               style={styles.button}
               onPress={() => Alert.alert("Link copiato negli appunti")}
             >
-            <Text style={styles.buttonText}>copia link</Text>
-            </TouchableOpacity>
+              <Ionicons name="copy-outline" size={24} color="white" />
+              <Text style={styles.buttonText}>Condividi</Text>
+          </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.settingsButton}
-              onPress={() => Alert.alert("Impostazioni")}
+              onPress={() => Alert.alert("Impostazioni")} 
             >
-            <Text style={styles.buttonText}>imp</Text>
+              <Ionicons name="create-outline"  size={24} color="white" />
+           
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Sezione dei film preferiti */}
         <View>
-          <Text style={styles.sezioneContainer}>Preferiti:</Text> 
+          <Text style={styles.sezioneContainer}>Preferiti recenti:</Text> 
           <View style={styles.moviesContainer}>
           {movies.slice(0, MaxFilmVisible).map((movie) => (  
               <MovieCard key={movie.id} movieItem={movie} />
@@ -62,9 +79,9 @@ export default function ProfileScreen() {
 
           <TouchableOpacity
               style={styles.mostraAltroButton}
-              onPress={() => Alert.alert("mostra altro")}
+              onPress={() => navigation.navigate("Wishlist", { username: username })}
             >
-            <Text style={styles.buttonText}>mostra altro</Text>
+            <Text style={styles.buttonText}>Mostra tutti</Text>
           </TouchableOpacity>
 
           </View>
@@ -77,7 +94,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#1A1A1A",
   },
   scrollContainer: {
     flexGrow: 1,
@@ -85,86 +102,84 @@ const styles = StyleSheet.create({
   profileSection: {
     alignItems: "center",
     marginVertical: 20,
+    paddingHorizontal: 20,
   },
   username: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "bold",
+    color: "#FFFFFF",
+    marginBottom: 10,
   },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 10,
-    marginTop: 20,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 15,
+    borderWidth: 3,
+    borderColor: "#9966CC",
   },
   bio: {
     fontSize: 14,
-    color: "#666",
+    color: "#A0A0A0",
     textAlign: "center",
-    paddingHorizontal: 20,
+    lineHeight: 20,
   },
- 
   moviesContainer: {
-    flexDirection: "row", // Allinea le schede in orizzontale
-    flexWrap: "wrap", // Permette il wrapping delle MovieCard
-    //justifyContent: "space-between", // Spaziatura tra le schede
-    paddingHorizontal: 10,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 15,
     marginBottom: 30,
-    //justifyContent: "center",
+    justifyContent: "center",
   },
-
   sezioneContainer: {
-    fontSize: 25,
+    fontSize: 22,
     fontWeight: "bold",
+    color: "#FFFFFF",
     marginTop: 20,
     marginLeft: 20,
     marginBottom: 20,
   },
-
   buttonContainer: {
     flexDirection: "row",
-    gap: 10,
-
-  
-
-  },
-
-  button: {
-    alignItems: "center",
-    backgroundColor: "#9966CC",
-    padding: 10,
+    gap: 15,
     marginTop: 20,
-    borderRadius: 30,
-    width: 100,
-    height: 40,
   },
-
-
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(153, 102, 204, 0.2)",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: "#9966CC",
+    gap: 8,
+  },
   buttonText: {
-    color: "#fff",
+    color: "#FFFFFF",
+    fontWeight: "600",
   },
-
   settingsButton: {
     alignItems: "center",
-    backgroundColor: "#9966CC",
-    padding: 10,
-    marginTop: 20,
-    borderRadius: 30,
-    width: 40,
-    height: 40,
+    justifyContent: "center",
+    backgroundColor: "rgba(153, 102, 204, 0.2)",
+    padding: 12,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: "#9966CC",
+    width: 50,
+    height: 50,
   },
-
   mostraAltroButton: {
     alignItems: "center",
-    backgroundColor: "#9966CC",
-    padding: 10,
-    marginTop: 20,
-    borderRadius: 5,
-    width: 100,
+    justifyContent: "center",
+    backgroundColor: "rgba(153, 102, 204, 0.15)",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(153, 102, 204, 0.3)",
+    width: 120,
     height: 40,
-    marginLeft: 20,
+    marginTop: 10,
   },
-
-
-
 });
