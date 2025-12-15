@@ -18,3 +18,51 @@ Di conseguenza, la tua ProfileScreen si apre e dentro route.params trova { usern
 Quindi sì, route.params è il modo in cui una schermata riceve "dati dall'esterno", che sia un'altra schermata o un link.
 
 
+
+
+
+//AGGIUNTO USECALLBACK E IMLEMENTATO IL REFRESHTOKEN ANCHE LATO FRONTEND.
+STUDIARE BENE LE LOGICHE DEI CONTEXT E DI USECALLBACK.
+
+
+
+
+PROVIDER WRAPPER (PER I CONTEXT FUTURI)
+/*
+
+import React from 'react';
+
+// 1. Importa tutti i tuoi Provider
+import { AuthProvider } from './AuthContext';
+import { WishlistProvider } from './WishlistContext';
+// import { CartProvider } from './CartContext'; // Quando lo creerai
+
+interface AppProvidersProps {
+  children: React.ReactNode;
+}
+
+export const AppProviders = ({ children }: AppProvidersProps) => {
+  return (
+    // 2. Annida i provider nell'ordine corretto (dall'esterno all'interno)
+    
+    // AuthProvider è il più esterno: gestisce il token e l'utente
+    <AuthProvider>
+      
+      {/* WishlistProvider dipende dall'Auth (usa il token), quindi va dentro */}
+      <WishlistProvider>
+        
+        {/* CartProvider dipenderebbe anche lui dall'Auth */}
+        {/* <CartProvider> */}
+          
+          {/* Qui verrà renderizzato il resto della tua app (AppNavigator) */}
+          {children}
+
+        {/* </CartProvider> */}
+
+      </WishlistProvider>
+    
+    </AuthProvider>
+  );
+};
+
+*/

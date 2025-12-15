@@ -127,6 +127,67 @@ export interface ContentDetails {
 }
 
 
+export type GenericCard =
+  | {
+      tipo: 'movie';
+      id: number;
+      title: string;
+      overview: string;
+      poster_path: string;
+      image: string;
+      name?: never;
+    }
+  | {
+      tipo: 'serietv';
+      id: number;
+      name: string;
+      overview: string;
+      poster_path: string;
+      image: string;
+      title?: never;
+    };
+
+
+export async function getCardbyId(id: number, tipo: 'movie' | 'serietv'): Promise<GenericCard> {
+  const endpoint =
+    tipo === 'movie'
+      ? BASE_URL + "/movie/"+ id + "?api_key=" + API_KEY + "&language=it-IT"
+      : BASE_URL + "/tv/"+ id + "?api_key=" + API_KEY + "&language=it-IT";
+
+  const res = await fetch(endpoint);
+  if (!res.ok) {
+    throw new Error('Errore nel recupero dei dati: ' + res.status);
+  }
+
+  const data: any = await res.json();
+  const poster = data.poster_path ?? '';
+  const image = poster ? "https://image.tmdb.org/t/p/w500" + poster : '';
+
+  if (tipo === 'movie') {
+    return {
+      tipo: 'movie',
+      id: data.id,
+      title: data.title ?? data.name ?? '',
+      overview: data.overview ?? '',
+      poster_path: poster,
+      image,
+      name: undefined as unknown as never, // mantiene il discriminante (name non presente)
+    };
+  } else {
+    return {
+      tipo: 'serietv',
+      id: data.id,
+      name: data.name ?? data.title ?? '',
+      overview: data.overview ?? '',
+      poster_path: poster,
+      image,
+      title: undefined as unknown as never, // mantiene il discriminante (title non presente)
+    };
+  }
+}
+
+
+
 
 export async function getContentById(id: number, type: 'movie' | 'serietv'): Promise<ContentDetails> {
   let endpoint = "";

@@ -1,147 +1,139 @@
-import React from "react";
-import { ScrollView, View, Text, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
-import MovieCard from "../components/MovieCard"; 
-import { ProfileStackParamList } from "../types/types";
+import React, { useEffect, useState, useCallback } from "react";
+import { View, Text, StyleSheet, ActivityIndicator, FlatList, TouchableOpacity} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
+import { ProfileStackParamList } from "../types/types";
+import { useWishlist } from "../context/WishlistContext";
+import { getCardbyId, GenericCard } from "../api/tmdb";
+import FavoriteCard from "../components/FavoriteCard";
 
 
-type WishlistProps = NativeStackScreenProps<ProfileStackParamList, 'Wishlist'>;
+type WishlistProps = NativeStackScreenProps<ProfileStackParamList, "Wishlist">;
 
-export default function Wishlist({route}: WishlistProps) {
-  const movies = [
-    { id: 1, title: "Inception", image: "https://via.placeholder.com/150" },
-    { id: 2, title: "Interstellar", image: "https://via.placeholder.com/150" },
-    { id: 3, title: "The Dark Knight", image: "https://via.placeholder.com/150" },
-    { id: 4, title: "Tenet", image: "https://via.placeholder.com/150" },
-    { id: 5, title: "Dunkirk", image: "https://via.placeholder.com/150" },
-    { id: 6, title: "The Hangover", image: "https://via.placeholder.com/150" },
-    { id: 7, title: "Spiderman", image: "https://via.placeholder.com/150" },
-    { id: 8, title: "IronMan", image: "https://via.placeholder.com/150" },
-    { id: 9, title: "Thor", image: "https://via.placeholder.com/150" },
-    { id: 10, title: "Captain America", image: "https://via.placeholder.com/150" },
+export default function Wishlist({ route, navigation}: WishlistProps) {
+  const username = route.params?.username;
+  const { wishlist } = useWishlist(); //uso il context per prendere la wishlist
+  const [isLoading, setIsLoading] = useState(false);
+  const [favoriteCards, setFavoriteCards] = useState<GenericCard[]>([]);
 
-  ];
+  // 🔁 Caricamento dati quando cambia la wishlist
+  useEffect(() => {
+    const fetchFavoriteDetails = async () => {
+      setIsLoading(true);
 
-  const MaxFilmVisible = 8; // Numero massimo di film da visualizzare
+      const moviePromises = Array.from(wishlist.movieIds).map((id) =>
+        getCardbyId(id, "movie")
+      );
+      const seriePromises = Array.from(wishlist.tvShowIds).map((id) =>
+        getCardbyId(id, "serietv")
+      );
 
-    const { username } = route.params;
+      try {
+        const results = await Promise.all([...moviePromises, ...seriePromises]);
+        const validResults = results.filter((item) => item !== null) as GenericCard[];
+        setFavoriteCards(validResults);
+      } catch (error) {
+        console.error("Errore nel caricamento dei dettagli della wishlist:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    // In futuro, useresti questo username per fare una chiamata API:
-    // useEffect(() => {
-    //   fetchWishlistForUser(username).then(setData);
-    // }, [username]);
+    fetchFavoriteDetails();
+  }, [wishlist]);
+
+  // 🔑 Estrattore della chiave per FlatList
+  const keyExtractor = useCallback((item: GenericCard) => `${item.tipo}-${item.id}`, []);
+
+  // 🧩 Render di ogni elemento
+  const renderItem = useCallback(({ item }: { item: GenericCard }) => (
+    <FavoriteCard card={item} />
+  ), []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Sezione dei film preferiti */}
-        <View>
-          <Text style={styles.sezioneContainer}>Preferiti: di {username}</Text> 
-          <View style={styles.moviesContainer}>
-            {/*RIEMPIRE I FILM CON LA PROPRIA LISTA PREFRITI FARE CHIAMATA FETCH DATABASE */}
-          {movies.slice(0, MaxFilmVisible).map((movie) => (  
-              <MovieCard key={movie.id} movieItem={movie} />
-            ))}
-
-          </View>
+    
+    <SafeAreaView style={styles.container}> 
+       {/* --- HEADER PERSONALIZZATO --- */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
+        </TouchableOpacity>
+        
+        <Text style={styles.headerTitle}>Preferiti</Text>
+        
+        {/* View vuota per bilanciare lo spazio e centrare il titolo */}
+        <View style={{ width: 28 }} />
+      </View>
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#9966CC" style={{ marginTop: 40 }} />
+      ) : favoriteCards.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Nessun preferito ancora</Text>
         </View>
-      </ScrollView>
+      ) : (
+        
+        <FlatList
+          data={favoriteCards}
+          keyExtractor={keyExtractor}
+          renderItem={renderItem}
+          numColumns={2} // 🔹 Mostra 2 card per riga (puoi modificare)
+          contentContainerStyle={styles.listContainer}
+          columnWrapperStyle={styles.columnWrapper}
+          showsVerticalScrollIndicator={false}
+        />
+        
+      )}  
     </SafeAreaView>
+    
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#1A1A1A",
   },
-  scrollContainer: {
-    flexGrow: 1,
+  loadingIndicator: {
+    marginTop: 40,
   },
-  profileSection: {
-    alignItems: "center",
-    marginVertical: 20,
+  // Stili per l'header
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
   },
-  username: {
-    fontSize: 18,
+  backButton: {
+    padding: 5, // Aumenta l'area cliccabile
+  },
+  headerTitle: {
+    color: "#FFFFFF",
+    fontSize: 22,
     fontWeight: "bold",
-  },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 10,
-    marginTop: 20,
-  },
-  bio: {
-    fontSize: 14,
-    color: "#666",
     textAlign: "center",
-    paddingHorizontal: 20,
   },
- 
-  moviesContainer: {
-    flexDirection: "row", // Allinea le schede in orizzontale
-    flexWrap: "wrap", // Permette il wrapping delle MovieCard
-    //justifyContent: "space-between", // Spaziatura tra le schede
+  listContainer: {
     paddingHorizontal: 10,
-    marginBottom: 30,
-    //justifyContent: "center",
+    paddingBottom: 30,
+    paddingTop: 10,
   },
-
-  sezioneContainer: {
-    fontSize: 25,
-    fontWeight: "bold",
-    marginTop: 20,
-    marginLeft: 20,
-    marginBottom: 20,
+  columnWrapper: {
+    justifyContent: "center", // Centrale
+    gap: 10, // Spazio fisso tra le card
+    marginBottom: 15,
   },
-
-  buttonContainer: {
-    flexDirection: "row",
-    gap: 10,
-
-  
-
-  },
-
-  button: {
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#9966CC",
-    padding: 10,
-    marginTop: 20,
-    borderRadius: 30,
-    width: 100,
-    height: 40,
   },
-
-
-  buttonText: {
-    color: "#fff",
+  emptyText: {
+    color: "#A0A0A0",
+    fontSize: 18,
+    textAlign: "center",
+    opacity: 0.8,
   },
-
-  settingsButton: {
-    alignItems: "center",
-    backgroundColor: "#9966CC",
-    padding: 10,
-    marginTop: 20,
-    borderRadius: 30,
-    width: 40,
-    height: 40,
-  },
-
-  mostraAltroButton: {
-    alignItems: "center",
-    backgroundColor: "#9966CC",
-    padding: 10,
-    marginTop: 20,
-    borderRadius: 5,
-    width: 100,
-    height: 40,
-    marginLeft: 20,
-  },
-
-
 
 });
