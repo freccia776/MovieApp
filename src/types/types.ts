@@ -34,14 +34,21 @@ export type ProfileStackParamList = {
   Content: ContentRouteParams;
   // Wishlist ora riceve l'username per sapere di chi è la lista da mostrare.
   // In futuro, la WishlistScreen userà questo username per chiedere al server l'ID corretto.
-  Wishlist: { username: string }; 
+  FriendProfile: { userId: number }; // ID dell'utente di cui vedere il profilo pubblico 
+  Wishlist: { username?: string; userId?: number }; 
   EditProfile: undefined; 
+  
 };
 
-
+// Parametri per lo Stack che vive DENTRO la screen "Friends"
 export type FriendsStackParamList = {
   FriendsMain: undefined;
+  AddFriend: undefined;
   Content: ContentRouteParams;
+  FriendProfile: { userId: number }; // ID dell'utente di cui vedere il profilo pubblico 
+  
+  // Modifichiamo Wishlist per accettare userId (opzionale)
+  Wishlist: { username?: string; userId?: number }; 
 };
 // 2. "MAPPA" PER LE TAB (Semplificata)
 // Definisce le schermate del navigatore a schede. Ogni schermata è uno Stack a sé.

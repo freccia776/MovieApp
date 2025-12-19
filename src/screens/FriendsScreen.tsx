@@ -1,11 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import NavigatorFriends from '../navigation/NavigatorFriends';
 export default function FriendsScreen() {
+
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.text}>Schermata Amici</Text>
+         <View style={styles.contentWrapper}>               
+                <NavigatorFriends />
+              </View>
     </SafeAreaView>
   );
 }
@@ -14,11 +17,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1A1A1A',
-    justifyContent: 'center',
-    alignItems: 'center',
+   
   },
-  text: {
-    color: '#FFFFFF',
-    fontSize: 20,
+   contentWrapper: {
+    flex: 1, // Permette al contenuto di espandersi
+    
   },
 });

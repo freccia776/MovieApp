@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ScrollView, View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import MovieCard from "../components/MovieCard"; // Assicurati che il percorso sia corretto
+
 import { ProfileStackParamList } from "../types/types";
 import { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack"; 
 import { useNavigation } from "@react-navigation/native";
@@ -9,38 +9,25 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from "../context/AuthContext";
 import * as ImagePicker from 'expo-image-picker'; // 1. Importa ImagePicker
 import { fetchWithAuth } from '../api/fetchWithAuth'; 
+import Avatar from "../components/Avatar";
 
-//IMPORTO IMAGE DA EXPO PER OTTIMIZZAZIONE.
-import { Image } from 'expo-image';
 // Definiamo le props per l'intera schermata (che includono 'route')
-type ProfileScreenProps = NativeStackScreenProps<ProfileStackParamList, 'ProfileMain'>;
+//PRIMA ERA COSÌ PERCHÈ PASSAVAMO I PARAM DA ROUTE
+//type ProfileScreenProps = NativeStackScreenProps<ProfileStackParamList, 'ProfileMain'>;
 
-// STIAMO UTILIZZANDO NAVIGATION PROP MA IN REALTÀ FORSE DOBBIAMO USARE PROPS PERCHÈ DOVREMMO 
-// PASSARE L'ID DEL PROFILO PER VEDERE LA LISTA PREFERITI DI OGNI UTENTE QUANDO APRO IL SUO PROFILO
+//DA CONTROLLARE.
 type NavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 
+//PRIMA ERA COSÌ PERCHÈ PASSAVAMO I PARAM DA ROUTE
+//export default function ProfileScreen({ route }: ProfileScreenProps) {
+
+export default function ProfileScreen() {
   
 
-
-export default function ProfileScreen({ route }: ProfileScreenProps) {
-  const movies = [
-    { id: 1, title: "Inception", image: "https://via.placeholder.com/150" },
-    { id: 2, title: "Interstellar", image: "https://via.placeholder.com/150" },
-    { id: 3, title: "The Dark Knight", image: "https://via.placeholder.com/150" },
-    { id: 4, title: "Tenet", image: "https://via.placeholder.com/150" },
-    { id: 5, title: "Dunkirk", image: "https://via.placeholder.com/150" },
-    { id: 6, title: "The Hangover", image: "https://via.placeholder.com/150" },
-    { id: 7, title: "Spiderman", image: "https://via.placeholder.com/150" },
-    { id: 8, title: "IronMan", image: "https://via.placeholder.com/150" },
-    { id: 9, title: "Thor", image: "https://via.placeholder.com/150" },
-    { id: 10, title: "Captain America", image: "https://via.placeholder.com/150" },
-
-  ];
-
-  const DEFAULT_PROFILE_IMAGE = 'https://movieapp-michele.s3.eu-north-1.amazonaws.com/default-avatar.webp'
+  
   const { user, signOut, updateUser, setTokens } = useAuth(); //uso il context per prendere i dati dell'utente e la funzione di logout
   const [isUploading, setIsUploading] = useState(false);
-
+  //const [refreshing, setRefreshing] = useState(false);
   const [status, requestPermission] = ImagePicker.useMediaLibraryPermissions();
     
   const handleLogout = () => {
@@ -191,7 +178,7 @@ export default function ProfileScreen({ route }: ProfileScreenProps) {
 
   //IL PRIMO SERVE PER IL DEEPLINKING :
   //IL SECONDO INVECE DOVREBBE ESSERE PRESO DALLA SESSIONE DELL'UTENTE LOGGATO
-  const username = route.params?.username || "UtenteEsempio"; // Username fittizio dell'utente loggato
+  //const username = route.params?.username || "UtenteEsempio"; // Username fittizio dell'utente loggato
   
   if (!user) {
     return (
@@ -201,11 +188,6 @@ export default function ProfileScreen({ route }: ProfileScreenProps) {
     );
   }
 
-   // Se user.profileImageUrl è null, usa DEFAULT_PROFILE_IMAGE
-  const currentImage = user.profileImageUrl 
-    ? { uri: user.profileImageUrl } 
-    : { uri: DEFAULT_PROFILE_IMAGE };
-  
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -214,13 +196,11 @@ export default function ProfileScreen({ route }: ProfileScreenProps) {
            {/* Immagine cliccabile */}
             <TouchableOpacity onPress={handleImagePress} disabled={isUploading}>
               <View style={styles.imageContainer}>
-                  <Image
-                    style={styles.profileImage}
-                    source={currentImage}
-                    contentFit="cover" // Sostituisce resizeMode="cover"
-                    transition={500}   // Dissolvenza di 500ms al caricamento
-                    cachePolicy="disk" // Forza il salvataggio su disco
-                  />
+                 <Avatar 
+                  uri={user.profileImageUrl} 
+                  size={120} 
+                  style={styles.profileImageBorder} 
+                />
                   {/* Overlay di caricamento se stiamo uppando */}
                   {isUploading && (
                       <View style={styles.loadingOverlay}>
@@ -260,9 +240,16 @@ export default function ProfileScreen({ route }: ProfileScreenProps) {
       
           <TouchableOpacity
               style={styles.mostraAltroButton}
-              onPress={() => navigation.navigate("Wishlist", { username: username })}
+              onPress={() => navigation.navigate("Wishlist" ,{})}
             >
             <Text style={styles.buttonText}>Wishlist</Text>
+          </TouchableOpacity>
+
+           <TouchableOpacity
+              style={styles.mostraAltroButton}
+              onPress={() => navigation.navigate("FriendProfile" ,{userId: 5})}
+            >
+            <Text style={styles.buttonText}>ifdkdkd</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -414,5 +401,10 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 12,
     fontWeight: 'bold',
-  }
+  },
+    // Stile specifico per il bordo viola dell'Avatar
+  profileImageBorder: {
+    borderWidth: 3,
+    borderColor: "#9966CC",
+  },
 });

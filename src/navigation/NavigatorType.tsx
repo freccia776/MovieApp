@@ -2,6 +2,7 @@ import React from 'react';
 import SeriePopular from '../screens/SeriePopular';
 import FilmPopular from '../screens/FilmPopular';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import FriendsScreen from '../screens/FriendsTab';
 const Tab = createMaterialTopTabNavigator();
 
 
@@ -30,6 +31,8 @@ export default function NavigatorType() {
     </Tab.Navigator>
   );
 }
+
+
 
 
  

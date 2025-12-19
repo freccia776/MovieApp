@@ -18,6 +18,7 @@ import MediaContent from '../screens/MediaContent';
 import Wishlist from '../screens/Wishlist';
 import EditProfile from '../screens/EditProfile';
 import FriendsScreen from '../screens/FriendsScreen';
+import FriendProfileScreen from '../screens/FriendProfileScreen';
 import {useWishlist} from '../context/WishlistContext';
 import { 
   HomeStackParamList, 
@@ -28,6 +29,7 @@ import {
   
 } from '../types/types'; // Assicurati che questi tipi siano definiti
 import { FriendsStackParamList } from '../types/types';
+import { AddFriendScreen } from '../screens/AddFriendScreen';
 // --- DEFINIZIONE DEL TEMA ---
 // Spostiamo il DarkTheme qui, così è legato alla navigazione.
 const DarkTheme = {
@@ -192,6 +194,8 @@ function FriendsStackNavigator() {
     <FriendsStack.Navigator screenOptions={{ headerShown: false }}>
       <FriendsStack.Screen name="FriendsMain" component={FriendsScreen} />
       <FriendsStack.Screen name="Content" component={MediaContent} />
+      <FriendsStack.Screen name="AddFriend" component={AddFriendScreen} />
+      <FriendsStack.Screen name="FriendProfile" component={FriendProfileScreen} />
     </FriendsStack.Navigator>
 
   )
@@ -205,6 +209,7 @@ function ProfileStackNavigator() {
       <ProfileStack.Screen name="Content" component={MediaContent} />
       <ProfileStack.Screen name="Wishlist" component={Wishlist} />
       <ProfileStack.Screen name="EditProfile" component={EditProfile} />
+      <FriendsStack.Screen name="FriendProfile" component={FriendProfileScreen} />
     </ProfileStack.Navigator>
   );
 }

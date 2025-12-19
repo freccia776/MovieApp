@@ -82,7 +82,7 @@ export default function SearchScreen() {
   }, 300);
 
   return () => {
-    clearTimeout(handler);
+    clearTimeout(handler); 
     setLoading(false);
   };
 }, [text]);
