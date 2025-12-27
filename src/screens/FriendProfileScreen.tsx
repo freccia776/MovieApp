@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { ScrollView, View, Text, StyleSheet, Image, ActivityIndicator, TouchableOpacity, Alert, RefreshControl} from "react-native";
+import { ScrollView, View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Alert, RefreshControl} from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from "@react-navigation/native-stack"; 
 import { Ionicons } from '@expo/vector-icons';
-import { Image as ExpoImage } from 'expo-image';
 import { useAuth } from "../context/AuthContext";
 // Import interni
 import { FriendsStackParamList } from "../types/types";
@@ -25,13 +24,23 @@ interface PublicProfile {
   favoriteTvShows: { tvShowId: number }[];
 }
 
+// Tipi per lo stato dell'amicizia
+type FriendshipStatus = 'NONE' | 'PENDING_SENT' | 'PENDING_RECEIVED' | 'ACCEPTED';
+
+
 export default function FriendProfileScreen({ navigation, route }: Props) {
   const { userId } = route.params; // Prendiamo l'ID dai parametri
   const { signOut, setTokens } = useAuth();
   
   const [profile, setProfile] = useState<PublicProfile | null>(null);
+  
+    // Stato Amicizia
+  const [friendshipStatus, setFriendshipStatus] = useState<FriendshipStatus>('NONE');
+  const [friendshipId, setFriendshipId] = useState<number | null>(null);
+
+  
   const [isLoading, setIsLoading] = useState(true);
-  const [isFriend, setIsFriend] = useState(false); // Per gestire il pulsante "Aggiungi/Rimuovi"
+  const [isLoadingAction, setIsLoadingAction] = useState(false); 
   const [refreshing, setRefreshing] = useState(false);
 
 
@@ -64,26 +73,216 @@ export default function FriendProfileScreen({ navigation, route }: Props) {
       } 
 
   }, [userId, signOut, setTokens]); 
+
+
+    // 2. CONTROLLA STATO AMICIZIA
+  const checkFriendshipStatus = useCallback(async () => {
+    try {
+        // NOTA: Questa rotta backend deve ritornare lo stato dell'amicizia tra Me e userId.
+        // Esempio risposta: { status: 'ACCEPTED', id: 123, requesterId: ... }
+        // Se non esiste, restituisce 404 o null, quindi assumiamo 'NONE'.
+        const response = await fetchWithAuth(
+            `/friends/status/${userId}`,    //IN QUESTO CASO E IN QUESTA SCHERMATA USERID LO PRENDIAMO DAI PARAMETRI è PROPRIO QUELLO DELL'UTENTE TERZO
+            { method: 'GET' },
+            { signOut, setTokens }
+        );
+
+        if (response.ok) {
+            const data = await response.json();
+            // data.status potrebbe essere 'PENDING', 'ACCEPTED'
+            // Dobbiamo capire se PENDING è inviata (SENT) o ricevuta (RECEIVED)
+            // Backend dovrebbe dirtelo, oppure controlli se data.requesterId === myId
+            
+            // Logica semplificata (adatta in base alla tua risposta backend):
+            if (data.status === 'ACCEPTED') {
+                setFriendshipStatus('ACCEPTED');
+            } else if (data.status === 'PENDING') {
+                // Se il backend ti dice chi ha fatto la richiesta:
+                if (data.isRequester) { 
+                    setFriendshipStatus('PENDING_SENT');
+                } else {
+                    setFriendshipStatus('PENDING_RECEIVED');
+                }
+            } else {
+                setFriendshipStatus('NONE');
+            }
+            
+            if (data.id) setFriendshipId(data.id);
+
+        } else {
+            // Se 404 o altro, assumiamo che non siano amici
+            setFriendshipStatus('NONE');
+            setFriendshipId(null);
+        }
+    } catch (error) {
+        console.log("Stato amicizia non trovato o errore:", error);
+        setFriendshipStatus('NONE');
+    }
+  }, [userId, signOut, setTokens]);
+
   
 
   // Effetto per il primo caricamento (mostra lo spinner grande)
+
+  // Caricamento Iniziale
   useEffect(() => {
     const initialLoad = async () => {
       setIsLoading(true);
-      await loadUserProfile();
+      await Promise.all([loadUserProfile(), checkFriendshipStatus()]);
       setIsLoading(false);
     };
     initialLoad();
-  }, [loadUserProfile]);
+  }, [loadUserProfile, checkFriendshipStatus]);
 
 
   
   // Funzione chiamata quando l'utente tira giù la lista
   const onRefresh = async () => {
     setRefreshing(true); // Mostra lo spinner piccolo in alto
-    await loadUserProfile(); // Ricarica i dati
+     await Promise.all([loadUserProfile(), checkFriendshipStatus()]);
     setRefreshing(false); // Nasconde lo spinner
   };
+  
+  // 3. GESTIONE AZIONI (Aggiungi, Rimuovi, Annulla)
+  const handleFriendAction = async () => {
+    if (!profile) return;
+    setIsLoadingAction(true);
+
+    try {
+        // CASO A: NON AMICI -> INVIA RICHIESTA
+        if (friendshipStatus === 'NONE') {
+
+            
+            const response = await fetchWithAuth(
+                '/friends/request',
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetUsername: profile.username })
+                },
+                { setTokens, signOut }
+            );
+
+            if (response.ok) {
+                const data = await response.json(); // Si spera torni l'id della friendship
+                setFriendshipStatus('PENDING_SENT');
+                if (data.id) setFriendshipId(data.id);
+                // Ricarichiamo per sicurezza per avere l'ID corretto
+                checkFriendshipStatus(); 
+            } else {
+                Alert.alert("Errore", "Impossibile inviare richiesta.");
+            }
+        } 
+        // CASO B: RICHIESTA INVIATA -> ANNULLA (DELETE)
+        else if (friendshipStatus === 'PENDING_SENT' && friendshipId) {
+            const response = await fetchWithAuth(
+                `/friends/${friendshipId}`,
+                { method: 'DELETE' },
+                { setTokens, signOut }
+            );
+
+            if (response.ok) {
+                setFriendshipStatus('NONE');
+                setFriendshipId(null);
+            } else {
+                Alert.alert("Errore", "Impossibile annullare la richiesta.");
+            }
+        }
+        // CASO C: AMICI -> RIMUOVI (DELETE con Conferma)
+        else if (friendshipStatus === 'ACCEPTED' && friendshipId) {
+            Alert.alert(
+                "Rimuovi amico",
+                `Sei sicuro di voler rimuovere ${profile.username} dagli amici?`,
+                [
+                    { text: "Annulla", style: "cancel", onPress: () => setIsLoadingAction(false) },
+                    { 
+                        text: "Rimuovi", 
+                        style: "destructive", 
+                        onPress: async () => {
+                            try {
+                                const response = await fetchWithAuth(
+                                    `/friends/${friendshipId}`,
+                                    { method: 'DELETE' },
+                                    { setTokens, signOut }
+                                );
+                                if (response.ok) {
+                                    setFriendshipStatus('NONE');
+                                    setFriendshipId(null);
+                                } else {
+                                    Alert.alert("Errore", "Impossibile rimuovere l'amico.");
+                                }
+                            } catch (e) { console.error(e); }
+                            finally { setIsLoadingAction(false); }
+                        }
+                    }
+                ]
+            );
+            return; // Usciamo per gestire il loading nell'Alert callback
+        }
+        // CASO D: RICHIESTA RICEVUTA -> ACCETTA (O vai a tab richieste)
+        else if (friendshipStatus === 'PENDING_RECEIVED' && friendshipId) {
+             // Opzione semplice: Accetta direttamente qui
+             const response = await fetchWithAuth(
+                `/friends/${friendshipId}/accept`,
+                {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'ACCEPTED' })
+                },
+                { setTokens, signOut }
+            );
+            if (response.ok) {
+                setFriendshipStatus('ACCEPTED');
+            }
+        }
+
+    } catch (error) {
+        console.error("Errore azione amicizia:", error);
+        Alert.alert("Errore", "Si è verificato un problema.");
+    } finally {
+        setIsLoadingAction(false);
+    }
+  };
+
+  // Funzione helper per stile e testo bottone
+  const getButtonConfig = () => {
+    switch (friendshipStatus) {
+        case 'ACCEPTED':
+            return { 
+                text: "Amici", 
+                icon: "checkmark-circle", 
+                color: "#2D2D2D", 
+                textColor: "#FFFFFF",
+                borderColor: "#9966CC" // Bordo viola per indicare stato attivo
+            };
+        case 'PENDING_SENT':
+            return { 
+                text: "Annulla richiesta", 
+                icon: "time", 
+                color: "#2D2D2D", 
+                textColor: "#A0A0A0",
+                borderColor: "#444" 
+            };
+        case 'PENDING_RECEIVED':
+            return { 
+                text: "Accetta richiesta", 
+                icon: "person-add", 
+                color: "#9966CC", 
+                textColor: "#FFFFFF",
+                borderColor: "#9966CC" 
+            };
+        default: // NONE
+            return { 
+                text: "Aggiungi", 
+                icon: "person-add", 
+                color: "#9966CC", 
+                textColor: "#FFFFFF",
+                borderColor: "#9966CC" 
+            };
+    }
+  };
+
+  const btnConfig = getButtonConfig();
 
 
   if (isLoading) {
@@ -133,12 +332,25 @@ export default function FriendProfileScreen({ navigation, route }: Props) {
 
           <View style={styles.buttonContainer}>
              <TouchableOpacity 
-               style={styles.friendButton} 
-               onPress={() => Alert.alert("Funzionalità futura", "Aggiungi/Rimuovi amico")}
+               style={[
+                   styles.friendButton, 
+                   { backgroundColor: btnConfig.color, borderColor: btnConfig.borderColor, borderWidth: 1 }
+               ]} 
+               onPress={handleFriendAction}
+               disabled={isLoadingAction}
              >
-               <Ionicons name={isFriend ? "person-remove" : "person-add"} size={20} color="white" />
-               <Text style={styles.buttonText}>{isFriend ? "Rimuovi" : "Aggiungi"}</Text>
+               {isLoadingAction ? (
+                   <ActivityIndicator size="small" color={btnConfig.textColor} />
+               ) : (
+                   <>
+                       <Ionicons name={btnConfig.icon as any} size={20} color={btnConfig.textColor} />
+                       <Text style={[styles.buttonText, { color: btnConfig.textColor }]}>{btnConfig.text}</Text>
+                   </>
+               )}
              </TouchableOpacity>
+
+             {/* Se siamo amici, mostra magari un tasto per rimuovere esplicitamente o altro, 
+                 ma il toggle sopra gestisce già la logica principale (tap su "Amici" -> Rimuovi) */}
           </View>
         </View>
 

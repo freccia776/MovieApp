@@ -196,6 +196,7 @@ function FriendsStackNavigator() {
       <FriendsStack.Screen name="Content" component={MediaContent} />
       <FriendsStack.Screen name="AddFriend" component={AddFriendScreen} />
       <FriendsStack.Screen name="FriendProfile" component={FriendProfileScreen} />
+      <ProfileStack.Screen name="Wishlist" component={Wishlist} />
     </FriendsStack.Navigator>
 
   )

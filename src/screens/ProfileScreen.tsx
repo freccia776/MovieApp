@@ -22,9 +22,7 @@ type NavigationProp = NativeStackNavigationProp<ProfileStackParamList>;
 //export default function ProfileScreen({ route }: ProfileScreenProps) {
 
 export default function ProfileScreen() {
-  
 
-  
   const { user, signOut, updateUser, setTokens } = useAuth(); //uso il context per prendere i dati dell'utente e la funzione di logout
   const [isUploading, setIsUploading] = useState(false);
   //const [refreshing, setRefreshing] = useState(false);
@@ -244,14 +242,7 @@ export default function ProfileScreen() {
             >
             <Text style={styles.buttonText}>Wishlist</Text>
           </TouchableOpacity>
-
-           <TouchableOpacity
-              style={styles.mostraAltroButton}
-              onPress={() => navigation.navigate("FriendProfile" ,{userId: 5})}
-            >
-            <Text style={styles.buttonText}>ifdkdkd</Text>
-          </TouchableOpacity>
-
+          
           <TouchableOpacity
               style={styles.logoutButton}
               onPress={handleLogout}
