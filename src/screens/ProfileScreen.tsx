@@ -190,7 +190,17 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileSection}>
-            <Text style={styles.username}>{user.username}</Text>
+           <View style={styles.headerRow}>
+                <Text style={styles.username}>{user.username}</Text>
+                
+                <TouchableOpacity 
+                    onPress={() => navigation.navigate("Settings")} 
+                    style={styles.settingsIcon}
+                >
+                    <Ionicons name="menu-outline" size={28} color="#FFFFFF" />
+                </TouchableOpacity>
+            </View>
+            
            {/* Immagine cliccabile */}
             <TouchableOpacity onPress={handleImagePress} disabled={isUploading}>
               <View style={styles.imageContainer}>
@@ -270,11 +280,25 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     paddingHorizontal: 20,
   },
+   // NUOVO STILE PER ALLINEARE NOME E MENU
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15, // Spazio sotto il nome prima dell'immagine
+    position: 'relative', 
+    justifyContent: 'center',
+    width: '100%',
+  },
+  settingsIcon: {
+    position: 'absolute', // Lo forziamo a destra
+    right: 0,
+    padding: 5,
+  },
   username: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#FFFFFF",
-    marginBottom: 10,
+    // marginBottom rimosso perché gestito da headerRow
   },
   profileImage: {
     width: 120,

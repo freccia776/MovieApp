@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "420078769901",
+    "project_id": "movieapp-b7b04",
+    "storage_bucket": "movieapp-b7b04.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:420078769901:android:0b747af9fe17130c741ee4",
+        "android_client_info": {
+          "package_name": "com.iltuonome.movieapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "420078769901-mjjnal306cerc88s3nl2jajiemjapipa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.iltuonome.movieapp",
+            "certificate_hash": "cf5cbd12f4ddd0d7216a78f476fdcd06cb598cae"
+          }
+        },
+        {
+          "client_id": "420078769901-1q1csclqs2lr9snlhqirh46sro2uvvh0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArcl0pXBUQG0ag7eHLe9u9ntppgsirIUM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "420078769901-1q1csclqs2lr9snlhqirh46sro2uvvh0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "420078769901-il9kvenmpml4n1nc9bq8viotinerhql7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.iltuonome.movieapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

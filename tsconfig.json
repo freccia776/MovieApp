@@ -1,6 +1,13 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
-  }
+    "strict": true,
+    // "skipLibCheck": true ignora i controlli di tipo nei file .d.ts delle librerie esterne.
+    // Questo risolve l'errore "expo-module-scripts not found" che vedi nei node_modules.
+    "skipLibCheck": true
+  },
+  // Escludiamo esplicitamente node_modules dall'analisi di TypeScript
+  "exclude": [
+    "node_modules"
+  ]
 }

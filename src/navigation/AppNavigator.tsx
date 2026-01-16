@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import LoginScreen from '../screens/authScreens/LoginScreen';
 import RegisterScreen from '../screens/authScreens/RegisterScreen';
+import SetUsernameScreen from '../screens/SetUsernameScreen';
 import SplashScreen from '../screens/SplashScreen'; 
 
 // --- IMPORT ESISTENTI ---
@@ -17,7 +18,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import MediaContent from '../screens/MediaContent';
 import Wishlist from '../screens/Wishlist';
 import EditProfile from '../screens/EditProfile';
-import FriendsScreen from '../screens/FriendsScreen';
+import NavigatorFriends from '../screens/NavigatorFriends';
 import FriendProfileScreen from '../screens/FriendProfileScreen';
 import {useWishlist} from '../context/WishlistContext';
 import { 
@@ -30,6 +31,9 @@ import {
 } from '../types/types'; // Assicurati che questi tipi siano definiti
 import { FriendsStackParamList } from '../types/types';
 import { AddFriendScreen } from '../screens/AddFriendScreen';
+import PushNotificationManager from '../components/PushNotificationManager';
+import SettingsScreen from '../screens/SettingsScreen';
+
 // --- DEFINIZIONE DEL TEMA ---
 // Spostiamo il DarkTheme qui, così è legato alla navigazione.
 const DarkTheme = {
@@ -151,7 +155,14 @@ export default function AppNavigator() {
   return (
     // L'UNICO NavigationContainer dell'app.
     <NavigationContainer theme={DarkTheme}>
+       {/* 1. INSERIMENTO GESTORE NOTIFICHE 
+          DEVE stare QUI, dentro NavigationContainer, per funzionare correttamente.
+      */}
+      <PushNotificationManager />
+      
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
+        
+          
         {user ? (
           // Se l'utente è loggato, mostra il navigatore principale con le Tab.
           <RootStack.Screen name="MainApp" component={MainAppTabs} />
@@ -161,6 +172,7 @@ export default function AppNavigator() {
           <>
             <RootStack.Screen name="Login" component={LoginScreen} />
             <RootStack.Screen name="Register" component={RegisterScreen} />
+            <RootStack.Screen name="SetUsername" component={SetUsernameScreen} />
           </>
         )}
       </RootStack.Navigator>
@@ -189,18 +201,22 @@ function SearchStackNavigator() {
   );
 }
 
-function FriendsStackNavigator() {
+function FriendsStackNavigator() { 
+  /* "Se non viene specificato diversamente, 
+  uno Stack Navigator mostra sempre la PRIMA schermata definita al 
+  suo interno come schermata iniziale." PER QUESTO MOSTRA SUBITO FRIENDSMAIN*/
   return ( 
     <FriendsStack.Navigator screenOptions={{ headerShown: false }}>
-      <FriendsStack.Screen name="FriendsMain" component={FriendsScreen} />
+      <FriendsStack.Screen name="FriendsMain" component={NavigatorFriends} />
       <FriendsStack.Screen name="Content" component={MediaContent} />
       <FriendsStack.Screen name="AddFriend" component={AddFriendScreen} />
       <FriendsStack.Screen name="FriendProfile" component={FriendProfileScreen} />
-      <ProfileStack.Screen name="Wishlist" component={Wishlist} />
+      <FriendsStack.Screen name="Wishlist" component={Wishlist} />
     </FriendsStack.Navigator>
 
   )
 }
+//friendstack --> friends schermata presente nella bar --> friendsmain con all'interno richieste e amici
 
 
 function ProfileStackNavigator() {
@@ -210,7 +226,8 @@ function ProfileStackNavigator() {
       <ProfileStack.Screen name="Content" component={MediaContent} />
       <ProfileStack.Screen name="Wishlist" component={Wishlist} />
       <ProfileStack.Screen name="EditProfile" component={EditProfile} />
-      <FriendsStack.Screen name="FriendProfile" component={FriendProfileScreen} />
+      <ProfileStack.Screen name="FriendProfile" component={FriendProfileScreen} />
+      <ProfileStack.Screen name="Settings" component={SettingsScreen}/>
     </ProfileStack.Navigator>
   );
 }

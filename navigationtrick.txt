@@ -27,6 +27,8 @@ STUDIARE BENE LE LOGICHE DEI CONTEXT E DI USECALLBACK.
 
 
 
+
+
 PROVIDER WRAPPER (PER I CONTEXT FUTURI)
 /*
 
@@ -66,3 +68,26 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
 };
 
 */
+
+ extra: {
+    eas: {
+      projectId: "e904e6d8-f73e-45f4-9339-d93d5b050b75"
+    },
+    // Le variabili d'ambiente vengono passate qui per essere lette dall'app
+    API_URL: process.env.API_URL_DEVELOPMENT
+  }
+
+
+
+
+
+//COME HO CREATO GOOGLE ACCOUNT LOGIN???
+HO USATO GOOGLE CLOUD CONSOLE E FIREBASE CONSOLE
+creato progetto firebase e aggiunto app android con sha1 (eas credentials su cartella app- fare build di sviluppo) 
+inoltre ho abiliato google auth li (con id web).
+
+andato su google cloud console e preso lo stesso progetto creato su firebase (premere tutti) --> creato credenziali oauth per web ios e android con sha1
+preso i credentials di web e ios e messi su env
+ricaricare firebase. usare il google-services.json controllare che ci siano 1 2 3 servizi con sha1. 
+
+

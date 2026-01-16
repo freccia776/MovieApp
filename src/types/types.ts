@@ -6,7 +6,14 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  MainApp: undefined; // Questa è la schermata che contiene le Tab
+  MainApp: undefined; // Questa è la schermata che contiene le Tab      
+  SetUsername: { 
+    socialToken: string;
+    provider: 'google' | 'apple';
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+  };
 };
 // Un tipo condiviso per i parametri della rotta Content
 export type ContentRouteParams = {
@@ -37,6 +44,7 @@ export type ProfileStackParamList = {
   FriendProfile: { userId: number }; // ID dell'utente di cui vedere il profilo pubblico 
   Wishlist: { username?: string; userId?: number }; 
   EditProfile: undefined; 
+  Settings: undefined;
   
 };
 
@@ -55,7 +63,14 @@ export type FriendsStackParamList = {
 export type RootTabParamList = {
   HomeStack: undefined;
   SearchStack: undefined;
-  FriendsStack: undefined;
+
+  FriendsStack: {
+    screen: 'FriendsMain';
+    params: {
+       screen: 'Richieste' | 'Amici'; 
+    };
+  } | undefined;
+
   ProfileStack: undefined;
 };
 /*

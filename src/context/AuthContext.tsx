@@ -26,7 +26,8 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   //setAccessToken: (newAccessToken: string | null) => Promise<void>; // È definito qui...
     // Permette di aggiornare solo alcuni campi dell'utente (es. solo la foto)
-  setTokens: (access: string, refresh: string) => Promise<void>;
+  // --- MODIFICA 1: Aggiunto userInfo come parametro opzionale (?) ---
+  setTokens: (access: string, refresh: string, userInfo?: User) => Promise<void>;
   updateUser: (updatedData: Partial<User>) => Promise<void>;
 }
 
@@ -102,12 +103,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   */
 
-  // FUNZIONE PER AGGIORNARE ENTRAMBI I TOKEN
-  const setTokens = async (newAccess: string, newRefresh: string) => {
+  //FUNZIONE PER AGGIORNARE ENTRAMBI I TOKEN con possibile passaggio userinfo
+  const setTokens = async (newAccess: string, newRefresh: string, userInfo?: User) => {
+    // 1. Aggiorniamo sempre i token (Stato + SecureStore)
     setAccessTokenState(newAccess);
     setRefreshTokenState(newRefresh);
     await SecureStore.setItemAsync('accessToken', newAccess);
     await SecureStore.setItemAsync('refreshToken', newRefresh);
+
+    // 2. NUOVO: Se ci viene passato anche l'utente (es. dal Social Login), aggiorniamo anche lui!
+    if (userInfo) {
+        setUser(userInfo);
+        await SecureStore.setItemAsync('userData', JSON.stringify(userInfo));
+    }
   };
 
   
